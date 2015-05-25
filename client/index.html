@@ -16,8 +16,17 @@
     <div id="main">
       <h1>chatterbox</h1>
       <!-- Your HTML goes here! -->
+
+      <!-- friends list, room selection, refresh messages (?) -->
+      <select id="rooms">
+        <option value="Main">Main</option>
+      </select>
+      <div id="friendsList">Friends:</div>
+        <form>
+          <input type="text" class="textbox" placeholder="Message here!">
+          <button id="send">Send</button>
+        </form>
       <div class="chat">
-        <script src="https://api.parse.com/1/classes/chatterbox.jsonp?callback=getMessages"></script>
       </div>
     </div>
   </body>
