@@ -15,13 +15,18 @@
   <body>
     <div id="main">
       <h1>chatterbox</h1>
-      <!-- Your HTML goes here! -->
+      <form name="input" id="makeRoom">
+      Make Room: <input id="roomInput" type="text">
+      <button id="createRoom">Create</button>
+      </form>
 
       <!-- friends list, room selection, refresh messages (?) -->
       <select id="rooms">
         <option value="Main">Main</option>
       </select>
-      <div id="friendsList">Friends:</div>
+      <div>Friends:
+      <ul id="friendsList"></ul>
+      </div>
         <form>
           <input type="text" class="textbox" placeholder="Message here!">
           <button id="send">Send</button>

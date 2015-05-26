@@ -1,17 +1,19 @@
 var App = function() {
   this.username = window.location.search.slice(10);
   this.friends = {};
+  this.rooms = {};
+  this.currentRoom = 'main';
   this.message = {
     'username': '',
     'text': 'hello',
-    'roomname': '' 
+    'roomname': 'Default' 
   };
 };
 
 App.prototype.template = function(user, msg, room){
-  var userSpan = '<a href="#" class="' + user + '">' + user + '</a><br />';
+  var userSpan = '<a href="#" class="user ' + user + '">' + user + '</a><br />';
   var msgSpan = '<span class="' + msg + '">' + msg + '</span><br />';
-  var roomSpan = '<span class="' + room + '">' + room + '</span>';
+  var roomSpan = '<a href="#" class="' + room + '">' + room + '</a>';
   var message = $('<p>User: ' + userSpan + 'Message: ' + msgSpan + 'Room: ' + roomSpan + '</p>');
   return message;
 };
@@ -29,26 +31,29 @@ App.prototype.escapeChars = function(str){
 };
 
 App.prototype.showRooms = function(rooms){
+  $('#rooms').empty();
   for (var key in rooms) {
     $('#rooms').append('<option value="' + key + '">' + key + '</option>');
   }
 };
 
-// App.prototype.filterRooms = function(room){
-//   var tmp = $('p');
-//   $.each(tmp, function(){
-//     if (!$(this).find('span').hasClass(room)) {
-//       $(this).fadeOut();
-//     } else {
-//       $(this).fadeIn();
-//     }
-//   });
-// };
+App.prototype.letsBeFriends = function(friend) {
+  this.friends[friend] = friend;
+  $('#friendsList a').remove();
+  for (var key in this.friends) {
+    var newFriend = $('<li><a href="#" class="' + key + '">' + key + '</a></li>');
+    $('#friendsList').append(newFriend);
+  }
+};
+
+App.prototype.clear = function() {
+  $('.chat').empty();
+}
 
 App.prototype.onFetch = function(resultData) {
   $('.chat p').remove();
   var that = this;
-  var rooms = {};
+  var rooms = that.rooms;
   resultData = _.sortBy(resultData, 'createdAt');
   _.each(resultData, function(item) {
     var room = $('<span>' + item.roomname + '</span>').text();
@@ -61,7 +66,7 @@ App.prototype.onFetch = function(resultData) {
     var message = that.template(user, text, room);
     $('.chat').prepend(message);
   });
-  // that.showRooms(rooms);
+  that.showRooms(rooms);
 };
 
 App.prototype.fetch = function(){
@@ -73,13 +78,7 @@ App.prototype.fetch = function(){
     // data: JSON.stringify(message),
     success: function(data) {
       console.log('chatterbox: Message got');
-      // data
       that.onFetch(data.results);
-      // if ($('#rooms').val() !== 'Main') {
-      //   that.filterRooms($('#rooms').val());
-      // } else {
-      //   $('p').show();
-      // }
     },
     error: function (data) {
       console.error('chatterbox: Failed to get message');
@@ -102,35 +101,41 @@ App.prototype.send = function(message){
   });
 };
 
-// saving friends to the friends list
-// listing rooms / filtering?
-
-// allow users to select username and send messages
-  
-  // allow users to create rooms
-  // allow users to befriend each other
-  // display messages from friends in bold
-
 $(document).ready(function() {  
   var chat = new App();
-  chat.fetch();
+  
   // chat.showRooms();
+  chat.fetch();
 
-  // send message functionality
   $('#send').on('click', function(e){
     e.preventDefault();
     var message = {
       'username': chat.username,
       'text': $('.textbox').val(),
-      'roomname': ''
+      'roomname': chat.currentRoom
     };
     chat.send(message);
+    $('#send').val('');
     // return false;
   });
 
-  // continuous refresh
-  // setInterval(function() {
-  //   chat.fetch();
-  // }, 500);
+  $('#makeRoom').on('submit', function(e) {
+    e.preventDefault();
+    var newRoom = $('#roomInput').val();
+    var option = '<option value="' + newRoom + '">' + newRoom + '</option>';
+    console.log('room:' + rooms); // room:[object HTMLSelectElement]
+    chat.currentRoom = option;
+    $('#roomInput').val('');
+  });
+
+  $('body').on('click', '.user', function(e) {
+    e.preventDefault();
+    chat.letsBeFriends($(this).html());
+    console.log('new friend made');
+  });
+
+  setInterval(function() {
+    chat.fetch();
+  }, 15000);
   
 });
