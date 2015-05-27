@@ -136,6 +136,6 @@ $(document).ready(function() {
 
   setInterval(function() {
     chat.fetch();
-  }, 15000);
+  }, 500);
   
 });
